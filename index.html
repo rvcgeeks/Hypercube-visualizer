@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <font color="white" style= font-family:"Courier New">
+      <h1 align = "center">
+        <b> HEX nD unit HYPERCUBE :: 2D projection</b>
+      </h1>
+             --by #rvcgeeks .. for more rvchavadekar@gmail.com
+    </font>
+	<script type="text/javascript" src="lib/underscore.js"></script>
+	<script type="text/javascript" src="lib/d3.min1.js "></script>
+    <script type="text/javascript" src="lib/math.js"></script>
+    
+    <script type="text/javascript" src="src/hyperShape.js"></script>
+    <script type="text/javascript" src="src/Rotator.js"></script>
+</head>
+<body bgcolor="black">
+    <div id="viz" align= "center"></div>
+    
+    <div align = "center">
+        <font color="#7fff00" style= font-family:"Courier New">
+		<b>
+        Dimensional space:
+        <select id="dimensions" onchange = "restart()">
+        <option value=0>0D</option>
+        <option value=1>1D</option>
+        <option value=2>2D</option>
+        <option value=3>3D</option>
+        <option value=4 selected>4D</option>
+        <option value=5>5D</option>
+        <option value=6>6D</option>
+        <option value=7>7D</option>
+        <option value=8>8D</option>
+        <option value=9>9D</option>
+        <option value=10>10D</option>
+        <option value=11>11D</option>
+        <option value=12>12D</option>
+    </select>
+    </div>
+    <br>
+	<div id = "rotmat"></div>
+    <script type="text/javascript">
+    
+    var size = 1000;
+    var scale = 90;
+    
+    // Make SVG
+    var svg = d3.select("#viz")
+        .append("svg")
+        .attr("width", size)
+        .attr("height", size)
+        .append("g")
+        .attr("transform", "translate(" + size/2 + "," + size/2 + ")");
+        
+    // Make main state
+    var state = {
+        svg: svg,
+        dimensions: getDimensions(),
+        hypercube: null,
+        angles: null,
+        rm: null,
+		net_rm : null,
+        counter: null,
+        counterLimit: null,
+        loop: null
+    }
+    
+    start(state);
+       
+    // Functions
+    function getDimensions(){
+        return +document.getElementById("dimensions").value;
+    }
+    
+    function restart(){
+        clear(state);
+        start(state);
+    } 
+    
+    function clear(state){
+        clearInterval(state.loop);
+        state.hypercube.remove();
+    }
+	
+    function makeTableHTML(n) { 
+       var result = "<table align = \"center\" width = "+135*n+" cellspacing = 0 cellpadding = 0 style=\"table-layout:fixed;\"><caption>___  "+n+" DIMENSIONAL ROTATION MATRIX  ___</caption>"; 
+       for(var i=0; i<n; i++) {
+          result += "<tr>"; 
+          for(var j=0; j<n; j++){ 
+             result += "<td id = cell"+i+"_"+j+"></td>"; 
+          } 
+          result += "</tr>";
+       } 
+       result += "</table>"; 
+       return result; 
+    }
+	
+	function writeTableHTML(myArray) { 
+       for(var i=0; i<myArray.length; i++) {
+          for(var j=0; j<myArray[i].length; j++){ 
+             var val = myArray[i][j].toFixed(10);
+             document.getElementById("cell"+i+"_"+j).innerHTML = (val>=0?"+":"-") + Math.abs(val).toString();
+          } 
+       } 
+    }
+	
+    function start(state){
+        var dimensions = getDimensions();
+        document.getElementById("rotmat").innerHTML = makeTableHTML(dimensions);
+        state.dimensions = dimensions;
+        state.hypercube = Hypercube(dimensions, state.svg, scale);
+        state.angles = Rotator.getAllRandomAngles(dimensions);
+        state.rm = Rotator.fullRotationMatrix(dimensions, state.angles);
+		state.net_rm = state.rm;
+        state.counter = 0;
+        state.loop = setUpLoop(state);
+    }
+	
+	
+    function setUpLoop(state){
+        return setInterval(function() {
+            state.hypercube.rotate(state.rm);
+			state.net_rm = math.multiply(state.net_rm , state.rm);
+			writeTableHTML(state.net_rm._data);
+            state.hypercube.render();
+            state.counter += 1;
+        },0.05)
+    }
+    
+    </script>
+	</b>
+  </font>
+</body>
+</html>
