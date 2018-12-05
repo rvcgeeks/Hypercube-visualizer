@@ -1,2 +1,3 @@
-# Hypercube-visualizer
-A portable web app to visualize the n-Dimensional unit cube 
+# hypercube
+
+Web app for visualising a n-dimensional hypercude orthogonally projected onto a 2d plane.
